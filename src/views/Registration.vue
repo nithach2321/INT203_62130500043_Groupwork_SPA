@@ -2,21 +2,23 @@
   <div class=" bg-gray-300">
     <div class="container h-screen">
         <div class="p-8 bg-white rounded-lg max-w-md pb-10">
-            <div class="flex justify-center mb-4"> 
-              <img src="https://i.imgur.com/f6Tb5U1.png" width="70"> 
-            </div>
-            <form>
-              <p v-if="registerForm.checkName" class="text-red-500 ">Please enter your name!</p>
-              <input v-model.trim="registerForm.name" @blur="checkForm(registerForm.name)" type="text" class="inputtextbox" placeholder="Name">
+            <div class="flex justify-center mb-4 fill-current text-red-700"> 
+              <svg xmlns="http://www.w3.org/2000/svg" width="70" viewBox="0 0 24 24">
+                <path d="M8.213 16.984c.97-1.028 2.308-1.664 3.787-1.664s2.817.636 3.787 1.664l-3.787 4.016-3.787-4.016zm-1.747-1.854c1.417-1.502 3.373-2.431 5.534-2.431s4.118.929 5.534 2.431l2.33-2.472c-2.012-2.134-4.793-3.454-7.864-3.454s-5.852 1.32-7.864 3.455l2.33 2.471zm-4.078-4.325c2.46-2.609 5.859-4.222 9.612-4.222s7.152 1.613 9.612 4.222l2.388-2.533c-3.071-3.257-7.313-5.272-12-5.272s-8.929 2.015-12 5.272l2.388 2.533z"/>
+              </svg>
+            </div> 
+            <form @submit.prevent="submitForm">
+              <p v-if="registerForm.invalidNameInput" class="text-red-500 ">Please enter your name!</p>
+              <input v-model.trim="registerForm.name" type="text" class="inputtextbox" placeholder="Name">
 
-              <p v-if="registerForm.checkEmail" class="text-red-500 ">Please enter your email!</p>
-              <input v-model.trim="registerForm.email" @blur="checkForm(registerForm.email)" type="text" class="inputtextbox mt-3" placeholder="Email">
+              <p v-if="registerForm.invalidEmailInput" class="text-red-500 ">Please enter your email!</p>
+              <input v-model.trim="registerForm.email" type="text" class="inputtextbox mt-3" placeholder="Email">
 
-              <p v-if="registerForm.checkPassword" class="text-red-500 ">Please enter your password!</p>
-              <input v-model.trim="registerForm.password" @blur="checkForm(registerForm.password)" type="text" class="inputtextbox mt-3" placeholder="Password">
+              <p v-if="registerForm.invalidPasswordInput" class="text-red-500 ">Please enter your password!</p>
+              <p v-else-if="!registerForm.isPasswordMatch" class="text-red-500 ">Your password not match!</p>
+              <input v-model.trim="registerForm.password" type="password" class="inputtextbox mt-3" placeholder="Password">
 
-              <p v-if="registerForm.checkRepassword" class="text-red-500 ">Please enter your re-password!</p>
-              <input v-model.trim="registerForm.repassword" @blur="checkForm(registerForm.repassword)" type="text" class="inputtextbox mt-3" placeholder=" Retype password"> 
+              <input v-model.trim="registerForm.repassword" type="password" class="inputtextbox mt-3" placeholder=" Retype password"> 
 
               <button class="button bg-red-700 hover:bg-red-800">Register</button>
             </form>
@@ -37,29 +39,57 @@ export default {
   data() {
     return {
       registerForm: {
-        name: null,
-        email: null,
-        password: null,
-        repassword: null,
-        checkName: false,
-        checkEmail: false,
-        checkPassword: false,
-        checkRepassword: false,
-      }
+        name: '',
+        email: '',
+        password: '',
+        repassword: '',
+        invalidNameInput: false,
+        invalidEmailInput: false,
+        invalidPasswordInput: false,
+        isPasswordMatch: true
+      },
+      accountDb: 'http://localhost:3000/account'
     }
   },
   methods: {
-    checkForm(input) {
-      if(input == '') {
-        if(input == this.registerForm.name) this.registerForm.checkName = true;
-        if(input == this.registerForm.email) this.registerForm.checkEmail = true;
-        if(input == this.registerForm.password) this.registerForm.checkPassword = true;
-        if(input == this.registerForm.repassword) this.registerForm.checkRepassword = true;
-      }else{
-        if(input == this.registerForm.name) this.registerForm.checkName = false;
-        if(input == this.registerForm.email) this.registerForm.checkEmail = false;
-        if(input == this.registerForm.password) this.registerForm.checkPassword = false;
-        if(input == this.registerForm.repassword) this.registerForm.checkRepassword = false;
+    checkForm() {
+      this.registerForm.invalidNameInput = this.registerForm.name == '' ? true : false
+      this.registerForm.invalidEmailInput = this.registerForm.email == '' ? true : false
+      this.registerForm.invalidPasswordInput = this.registerForm.password == '' ? true : false
+      this.registerForm.isPasswordMatch = this.registerForm.password == this.registerForm.repassword ? true : false
+    },
+
+    submitForm() {
+      this.checkForm();
+      if(this.registerForm.invalidNameInput == true || 
+      this.registerForm.invalidEmailInput == true || 
+      this.registerForm.invalidPasswordInput == true || 
+      this.registerForm.isPasswordMatch == false)
+      return;
+
+      this.addNewSurvey({
+        name: this.registerForm.name,
+        email: this.registerForm.email,
+        password: this.registerForm.password
+      });
+    },
+
+    async addNewSurvey(newAccount) {
+      try{
+        await fetch(this.accountDb,{
+         method: 'POST' ,
+         headers: {
+           'Content-type': 'application/json'
+         },
+         body: JSON.stringify({
+           name: newAccount.name,
+           email: newAccount.email,
+           password: newAccount.password
+         })
+        }) 
+      }
+      catch(error){
+        console.log(error);
       }
     }
   }
