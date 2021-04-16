@@ -1,6 +1,6 @@
 <template>
   <my-template>
-    <form @submit.prevent="submitregisterForm">
+    <form @submit.prevent="submitRegisterForm">
       <p v-if="registerForm.invalidNameInput" class="text-red-500 ">Please enter your name!</p>
       <p v-else-if="registerForm.nameAlreadyExist" class="text-red-500 ">Your name already exist!</p>
       <input v-model.trim="registerForm.name" type="text" class="inputtextbox" placeholder="FullName">
@@ -96,7 +96,7 @@ export default {
       }
     },
 
-    async submitregisterForm() {
+    async submitRegisterForm() {
       await this.checkForm();
       if(this.registerForm.invalidNameInput == true || 
       this.registerForm.invalidEmailInput == true || 
