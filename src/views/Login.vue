@@ -20,13 +20,8 @@
   </my-template>
 </template>
 <script>
-import MyTemplate from '../components/MyTemplate.vue'
-
 export default {
   name: 'Login',
-  components: {
-    MyTemplate
-  },
   data() {
     return {
       loginForm: {

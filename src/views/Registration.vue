@@ -17,7 +17,9 @@
 
       <p v-if="registerForm.notAcceptTerms" class="text-red-500 ">Please accept the Terms of Service and Privacy Policy</p>
       <input v-model="registerForm.terms" type="checkbox" id="terms" class="mt-3">
-      <label for="terms" class="text-gray-700"> I accept to the Terms of Service and Privacy Policy</label>
+      <label for="terms" class="text-gray-700"> I accept to the </label>
+      <span @click="switchPopover" class="underline">Terms of Service and Privacy Policy</span>
+      <popover @close-pop="switchPopover" :show="termsPopover.show" :title="termsPopover.title" :text="termsPopover.text"></popover>
 
       <button class="button bg-red-700 hover:bg-red-800">Register</button>
       <p v-if="registerForm.isUserFull" class="text-red-500 ">Sorry, we couldn't register. Please try again later</p>
@@ -32,12 +34,12 @@
   </my-template>
 </template>
 <script>
-import MyTemplate from '../components/MyTemplate.vue'
+import Popover from '../components/Popover.vue'
 
 export default {
   name: 'Registration',
-  components: {
-    MyTemplate
+  components:{
+    Popover
   },
   data() {
     return {
@@ -56,7 +58,13 @@ export default {
         emailAlreadyExist: false,
         isUserFull: false
       },
-      accountDb: 'http://localhost:3000/account'
+      accountDb: 'http://localhost:3000/account',
+      termsPopover: {
+        show: false,
+        title: 'Terms of Service and Privacy Policy',
+        text: 'text1'
+      },
+      
     }
   },
   methods: {
@@ -95,7 +103,8 @@ export default {
       this.registerForm.invalidPasswordInput == true || 
       this.registerForm.isPasswordMatch == false ||
       this.registerForm.nameAlreadyExist == true ||
-      this.registerForm.emailAlreadyExist == true)
+      this.registerForm.emailAlreadyExist == true ||
+      this.registerForm.notAcceptTerms == true)
       return;
 
       let dataAccount = await this.getAccount();
@@ -119,6 +128,7 @@ export default {
         username: username,
         password: this.registerForm.password
       });
+      this.$router.push({ path: '/' })
     },
 
    
@@ -151,6 +161,10 @@ export default {
         console.log(error)
       }
     },
+    
+    switchPopover(){
+      this.termsPopover.show = !this.termsPopover.show;
+    }
   }
 }
 </script>
