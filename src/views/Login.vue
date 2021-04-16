@@ -1,16 +1,17 @@
 <template>
   <my-template>
-    <form>
-      <p v-if="loginForm.checkUsername" class="text-red-500">Please enter your username!</p>
+    <form @submit.prevent="submitLoginForm">
+      <p v-if="loginForm.invalidUsernameInput" class="text-red-500">Please enter your username!</p>
       <input v-model.trim="loginForm.username" type="text" class="inputtextbox" placeholder="Username">
 
-      <p v-if="loginForm.checkPassword" class="text-red-500">Please enter your password!</p>
-      <input v-model.trim="loginForm.password" type="text" class="inputtextbox mt-3" placeholder="Password">
+      <p v-if="loginForm.invalidPasswordInput" class="text-red-500">Please enter your password!</p>
+      <input v-model.trim="loginForm.password" type="password" class="inputtextbox mt-3" placeholder="Password">
       <div class="flex justify-end items-center mt-2"> 
         <a href="#" class="text-gray-400 hover:text-gray-600">Forgot password?</a> 
       </div> 
       <button class="button bg-blue-700 hover:bg-blue-800">login</button>
     </form>
+    <popover @close-pop="editPopOver()" :show="popOver.show" :width="popOver.width" :height="popOver.height" :title="popOver.title" :text="popOver.text"></popover>
     <div class="flex justify-between items-center mt-3">
       <hr class="w-full"> <span class="p-2 text-gray-400 mb-1">OR</span> <hr class="w-full">
     </div>
@@ -20,27 +21,72 @@
   </my-template>
 </template>
 <script>
+import Popover from '../components/Popover.vue'
+
 export default {
   name: 'Login',
+  components:{
+    Popover
+  },
   data() {
     return {
       loginForm: {
-        username: null,
-        password: null,
-        checkUsername: false,
-        checkPassword: false,
+        username: '',
+        password: '',
+        invalidUsernameInput: false,
+        invalidPasswordInput: false,
+        showWrongInput: false,
+      },
+      popOver:{
+        show: false,
+        width: 'w-7/12',
+        height: 'h-1/6',
+        title: '',
+        text: ''
       },
       accountDb: 'http://localhost:3000/account'
     }
   },
   methods: {
-    checkForm(input) {
-      if(input == '') {
-        if(input == this.loginForm.username) this.loginForm.checkUsername = true;
-        if(input == this.loginForm.password) this.loginForm.checkPassword = true;
-      }else{
-        if(input == this.loginForm.username) this.loginForm.checkUsername = false;
-        if(input == this.loginForm.password) this.loginForm.checkPassword = false;
+    async checkForm() {
+      this.loginForm.username = this.loginForm.username.toLowerCase();
+      this.loginForm.invalidUsernameInput = this.loginForm.username == '' ? true : false
+      this.loginForm.invalidPasswordInput = this.loginForm.password == '' ? true : false
+      
+    },
+
+    async submitLoginForm() {
+      await this.checkForm();
+      if(this.loginForm.invalidUsernameInput == true || 
+      this.loginForm.invalidPasswordInput == true)
+      return;
+
+      let dataAccount = await this.getAccount();
+      for(let account of dataAccount){
+        if(account.username == this.loginForm.username && 
+        account.password == this.loginForm.password){
+          this.editPopOver(true,'Login Successful',`Wellcome ${this.loginForm.username}`)
+          
+          return;
+        }
+      }
+
+      this.editPopOver(true,'Login Failure','Your username or password is incorrect.')
+    },
+
+    editPopOver(show = false,title = '',text = ''){
+      this.popOver.show = show;
+      this.popOver.title = title;
+      this.popOver.text = text;
+    },
+
+    async getAccount(){
+      try{
+        const res =await fetch(this.accountDb)
+        const data = await res.json()
+        return data
+      }catch(error){
+        console.log(error)
       }
     },
   }
