@@ -18,12 +18,13 @@
       <p v-if="registerForm.notAcceptTerms" class="text-red-500 ">Please accept the Terms of Service and Privacy Policy</p>
       <input v-model="registerForm.terms" type="checkbox" id="terms" class="mt-3">
       <label for="terms" class="text-gray-700"> I accept to the </label>
-      <span @click="editPopOver(true,'w-10/12','h-1/2','Terms of Service and Privacy Policy','text1')" class="underline">Terms of Service and Privacy Policy</span>
+      <span @click="editPopOver(true,'w-10/12','h-1/2','md:w-1/2','md:h-3/4','Terms of Service and Privacy Policy','text1')" class="underline">Terms of Service and Privacy Policy</span>
 
       <button class="button bg-red-700 hover:bg-red-800">Register</button>
       <p v-if="registerForm.isUserFull" class="text-red-500 ">Sorry, we couldn't register. Please try again later</p>
     </form>
-    <popover @close-pop="editPopOver()" :show="popOver.show" :width="popOver.width" :height="popOver.height" :title="popOver.title" :text="popOver.text"></popover>
+    <popover @close-pop="editPopOver()" :show="popOver.show" :width="popOver.width" :height="popOver.height" 
+    :mdwidth="popOver.mdwidth" :mdheight="popOver.mdheight" :title="popOver.title" :text1="popOver.text1" :text2="popOver.text2"></popover>
     <div class="flex justify-between items-center mt-3">
       <hr class="w-full"> <span class="p-2 text-gray-400 mb-1">OR</span>
       <hr class="w-full">
@@ -63,8 +64,11 @@ export default {
         show: false,
         width: '',
         height: '',
+        mdwidth: '',
+        mdheight: '',
         title: '',
-        text: ''
+        text1: '',
+        text2: '',
       },
     }
   },
@@ -128,9 +132,10 @@ export default {
         username: username,
         password: this.registerForm.password
       });
-      this.editPopOver(true,'w-7/12','h-1/6','Register Successfully',
-      `Your Username is: ${username}`)
-      //this.$router.push({ path: '/' })
+      this.editPopOver(true,'w-7/12','h-1/6','md:w-96','md:h-36',
+      'Register Successfully',`Your Username is: ${username}`,'Please wait in 3 second')
+      let myRouter = this.$router;
+      setInterval(function(){myRouter.push({ path: '/' }); return;}, 3000);
     },
 
    
@@ -164,12 +169,15 @@ export default {
       }
     },
 
-    editPopOver(show = false,width = '',height = '',title = '',text = ''){
+    editPopOver(show = false,width = '',height = '',mdwidth = '',mdheight = '',title = '',text1 = '',text2 = ''){
       this.popOver.show = show;
       this.popOver.width = width;
       this.popOver.height = height;
+      this.popOver.mdwidth = mdwidth;
+      this.popOver.mdheight = mdheight;
       this.popOver.title = title;
-      this.popOver.text = text;
+      this.popOver.text1 = text1;
+      this.popOver.text2 = text2;
     },
   }
 }

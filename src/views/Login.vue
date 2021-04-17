@@ -1,17 +1,16 @@
 <template>
-  <my-template>
+  <my-template msg="WiFi Hotspot Login System">
     <form @submit.prevent="submitLoginForm">
       <p v-if="loginForm.invalidUsernameInput" class="text-red-500">Please enter your username!</p>
       <input v-model.trim="loginForm.username" type="text" class="inputtextbox" placeholder="Username">
 
       <p v-if="loginForm.invalidPasswordInput" class="text-red-500">Please enter your password!</p>
       <input v-model.trim="loginForm.password" type="password" class="inputtextbox mt-3" placeholder="Password">
-      <div class="flex justify-end items-center mt-2"> 
-        <a href="#" class="text-gray-400 hover:text-gray-600">Forgot password?</a> 
-      </div> 
+
       <button class="button bg-blue-700 hover:bg-blue-800">login</button>
     </form>
-    <popover @close-pop="editPopOver()" :show="popOver.show" :width="popOver.width" :height="popOver.height" :title="popOver.title" :text="popOver.text"></popover>
+    <popover @close-pop="editPopOver()" :show="popOver.show" :width="popOver.width" :height="popOver.height" 
+    :mdwidth="popOver.mdwidth" :mdheight="popOver.mdheight" :title="popOver.title" :text1="popOver.text1" :text2="popOver.text2"></popover>
     <div class="flex justify-between items-center mt-3">
       <hr class="w-full"> <span class="p-2 text-gray-400 mb-1">OR</span> <hr class="w-full">
     </div>
@@ -41,8 +40,11 @@ export default {
         show: false,
         width: 'w-7/12',
         height: 'h-1/6',
+        mdwidth: 'md:w-96',
+        mdheight: 'md:h-36',
         title: '',
-        text: ''
+        text1: '',
+        text2: '',
       },
       accountDb: 'http://localhost:3000/account'
     }
@@ -65,8 +67,8 @@ export default {
       for(let account of dataAccount){
         if(account.username == this.loginForm.username && 
         account.password == this.loginForm.password){
-          this.editPopOver(true,'Login Successful',`Wellcome ${this.loginForm.username}`)
-          
+          this.editPopOver(true,'Login Successful',`Wellcome ${this.loginForm.username}`,'Please wait in 3 second')
+          setInterval(function(){ window.location.replace("http://www.google.com"); return;}, 3000);
           return;
         }
       }
@@ -74,10 +76,11 @@ export default {
       this.editPopOver(true,'Login Failure','Your username or password is incorrect.')
     },
 
-    editPopOver(show = false,title = '',text = ''){
+    editPopOver(show = false,title = '',text1 = '',text2 = ''){
       this.popOver.show = show;
       this.popOver.title = title;
-      this.popOver.text = text;
+      this.popOver.text1 = text1;
+      this.popOver.text2 = text2
     },
 
     async getAccount(){
