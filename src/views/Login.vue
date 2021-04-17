@@ -6,7 +6,6 @@
 
       <p v-if="loginForm.invalidPasswordInput" class="text-red-500">Please enter your password!</p>
       <input v-model.trim="loginForm.password" type="password" class="inputtextbox mt-3" placeholder="Password">
-
       <button class="button bg-blue-700 hover:bg-blue-800">login</button>
     </form>
     <popover @close-pop="editPopOver()" :show="popOver.show" :width="popOver.width" :height="popOver.height" 
@@ -15,7 +14,7 @@
       <hr class="w-full"> <span class="p-2 text-gray-400 mb-1">OR</span> <hr class="w-full">
     </div>
     <router-link to="/Register">
-      <button class="button bg-red-700 hover:bg-red-800">Register</button>
+      <button class="button bg-red-700 hover:bg-red-800">Create Account</button>
     </router-link>
   </my-template>
 </template>
@@ -67,8 +66,7 @@ export default {
       for(let account of dataAccount){
         if(account.username == this.loginForm.username && 
         account.password == this.loginForm.password){
-          this.editPopOver(true,'Login Successful',`Wellcome ${this.loginForm.username}`,'Please wait in 3 second')
-          setInterval(function(){ window.location.replace("http://www.google.com"); return;}, 3000);
+          this.$router.push({ name: 'Profile', params: {username: account.username }});
           return;
         }
       }
