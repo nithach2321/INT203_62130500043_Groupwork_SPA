@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="submitRegisterForm">
+  <form @submit.prevent="submitForm">
     <p v-show="form.invalidNameInput" class="text-red-500 ">Please enter your name!</p>
     <p v-show="form.nameAlreadyExist" class="text-red-500 ">Your name already exist!</p>
     <input v-model.trim="formData.name" type="text" class="inputtextbox" placeholder="FullName">
@@ -20,10 +20,9 @@
       <label for="terms" class="text-gray-700"> I accept to the </label>
       <span v-on:click="$emit('showTerms')" class="underline">Terms of Service and Privacy Policy</span>
       <button class="button bg-red-700 hover:bg-red-800">Register</button>
-      <p v-if="form.isUserFull" class="text-red-500 ">Sorry, we couldn't register. Please try again later</p>
     </div>
     <div v-else>
-      <button v-on:click="$emit('submitEdit',this.formData)" class="button bg-blue-700 hover:bg-blue-800">Submit</button>
+      <button class="button bg-blue-700 hover:bg-blue-800">Submit</button>
     </div>
   </form>
 </template>
@@ -53,16 +52,16 @@ export default {
         passwordNotMatch: false,
         notAcceptTerms: false,
         nameAlreadyExist: false,
-        emailAlreadyExist: false,
-        isUserFull: false
+        emailAlreadyExist: false
       },
       accountDb: 'http://localhost:3000/account'
     }
   },
   methods: {
-    async submitRegisterForm() {
-      await this.checkForm();
-      this.$emit('submitRegister',this.formData)
+    async submitForm() {
+      if(await this.checkForm() == false) return;
+      if(this.account == null) this.$emit('submitRegister',this.formData);
+      else this.$emit('submitEdit',this.formData);
     },
 
     async checkForm() {
@@ -71,7 +70,12 @@ export default {
       this.form.invalidEmailInput = this.formData.email == '' ? true : false
       this.form.invalidPasswordInput = this.formData.password == '' ? true : false
       this.form.passwordNotMatch = this.formData.password != this.formData.repassword ? true : false
-      this.form.notAcceptTerms = this.form.terms == false ? true : false
+      if(this.account == null) this.form.notAcceptTerms = this.form.terms == false ? true : false;
+      
+      if(this.form.invalidNameInput == true || this.form.invalidEmailInput == true || 
+      this.form.invalidPasswordInput == true || this.form.passwordNotMatch == true || 
+      this.form.notAcceptTerms == true) return false;
+      
       let dataAccount = await this.getAccount();
       for(let account of dataAccount){
         if(account.name == this.formData.name){
@@ -89,6 +93,9 @@ export default {
           this.form.emailAlreadyExist = false;
         }
       }
+
+      if(this.form.nameAlreadyExist == true || this.form.emailAlreadyExist == true) return false;
+      return true;
     },
    
     async getAccount(){
